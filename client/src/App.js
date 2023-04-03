@@ -1,21 +1,29 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import "./App.css";
 import Axios from "axios";
-
+import 'animate.css';
+import autoAnimate from '@formkit/auto-animate'
+import { useAutoAnimate } from '@formkit/auto-animate/react'
+import io from "socket.io-client"
 function App() {
+  const socket=io.connect("http://localhost:5000");
+
+
   const [users, setUsers] = useState([]);
   const [zid, setId] = useState();
   const [name, setName] = useState();
   const [email, setEmail] = useState();
+  const [change, setChange] = useState(true);
 
   const set = async () => {
     await Axios.get("http://localhost:5000/getUsers").then((res)=>{setUsers(res.data)})
-    console.log("set worked")
+
+    console.log("setted")
   };
 
   const deleteUser = async (id) => {
     await Axios.post(`http://localhost:5000/deleteUser/${id}`);
-    set();
+     set();
   };
 
   const gonder = async () => {
@@ -24,6 +32,7 @@ function App() {
       email: email,
     });
     set();
+
   };
 
   const updateUser = async () => {
@@ -32,6 +41,7 @@ function App() {
       email: email,
     });
     set();
+  
   };
 
   const deletea =  (user) => {
@@ -45,12 +55,19 @@ function App() {
   useEffect(()=>{
     set()
   },[])
-
+  useEffect(()=>{
+    set()
+  },[change])
+  socket.on("Data",()=>{
+; 
+  })
+  const [animationParent] = useAutoAnimate()
 
   return (
     <div className="App">
+      <div className="an" ref={animationParent}>
       {users.map((user,key) => (
-        <div className="users">
+        <div className="users " key={key}>
           <div>name:{user.name}</div>
           <div>email:{user.email}</div>
           <div>date:{user.date}</div>
@@ -58,6 +75,8 @@ function App() {
           <button onClick={()=>{setUserUpdate(user)}}>set</button>
         </div>
       ))}
+      </div>
+     
 
       <div className="input">
         <input type="text" onChange={(e) => setName(e.target.value)}></input>

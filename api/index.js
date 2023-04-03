@@ -7,13 +7,17 @@ const app=express();
 app.use(express.json());
 app.use(cors());
 
+
 require('dotenv').config("./.env")
 
 mongoose.connect(process.env.MONGO_URI)
 
-app.listen(process.env.PORT_URL,()=>{
+const server=app.listen(process.env.PORT_URL,()=>{
     console.log("server runing on:"+process.env.PORT_URL)
+ 
 });
+
+
 
 app.get("/getUsers",(req,res)=>{
     UserModul.find().then((data)=>{
@@ -47,3 +51,13 @@ app.post("/updateUser/:id",async (req,res)=>{
     
     res.end()
  }) 
+ io=require("socket.io")(server,{
+    cors:{
+        origin:"*",
+    },
+});
+
+
+ io.on("connection",(socket)=>{
+    socket.emit("Data")
+})
